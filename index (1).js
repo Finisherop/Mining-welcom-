@@ -11,7 +11,7 @@ const token = process.env.TELEGRAM_BOT_API_TOKEN;
 const webAppUrl = 'https://finisherop.github.io/Mining-/'; // <-- Yahan Web App ka URL daalein
 
 // Community ka URL
-const communityUrl = 'https://t.me/finisher_tech_ai'; // <-- Yahan Community ka URL daalein
+const communityUrl = 'https://t.me/finisher_techg'; // <-- Yahan Community ka URL daalein
 
 // Bot ko start karein
 const bot = new TelegramBot(token, { polling: true });
