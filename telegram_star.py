@@ -2,7 +2,8 @@ import os
 import asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.utils import executor
-
+from dotenv import load_dotenv
+load_dotenv()  
 # Bot token from environment variable
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 bot = Bot(token=BOT_TOKEN)
