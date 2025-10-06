@@ -1,60 +1,61 @@
+from aiogram import Bot, Dispatcher, types
+from aiogram.utils import executor
+import asyncio
 
+BOT_TOKEN = "8437351423:AAEauPmc30yXlTI0TstB3m2cmy-0PGrrpXk"
+bot = Bot(token=BOT_TOKEN)
+dp = Dispatcher(bot)
 
-// Library ko import karein
-const TelegramBot = require('node-telegram-bot-api');
+# In-memory storage for testing
+user_data = {}
 
-// Apna API Token yahan daalein. Yeh sabse best tareeka hai.
-// Render/Koyeb ki settings me जाकर 'Environment Variable' set karna hoga.
-const token = process.env.TELEGRAM_BOT_API_TOKEN;
+# Start command
+@dp.message_handler(commands=['start'])
+async def start(message: types.Message):
+    user_id = message.from_user.id
+    if user_id not in user_data:
+        user_data[user_id] = {"stars": 0, "level": 1}
+    await message.reply(
+        f"🎉 Welcome {message.from_user.first_name}!\n"
+        f"💎 Stars: {user_data[user_id]['stars']}\n"
+        f"🎁 Open your gift box with /receive"
+    )
 
-// Web App ka URL (Vercel/Netlify se milega)
-const webAppUrl = 'https://finisherop.github.io/Mining-/'; // <-- Yahan Web App ka URL daalein
+# Profile command
+@dp.message_handler(commands=['profile'])
+async def profile(message: types.Message):
+    user_id = message.from_user.id
+    if user_id in user_data:
+        await message.reply(
+            f"🎯 Profile:\n"
+            f"💎 Stars: {user_data[user_id]['stars']}\n"
+            f"🏆 Level: {user_data[user_id]['level']}"
+        )
+    else:
+        await message.reply("No data found. Use /start first.")
 
-// Community ka URL
-const communityUrl = 'https://t.me/finisher_techg'; // <-- Yahan Community ka URL daalein
+# Receive gift (simulate Telegram Stars)
+@dp.message_handler(commands=['receive'])
+async def receive_gift(message: types.Message):
+    user_id = message.from_user.id
+    if user_id not in user_data:
+        user_data[user_id] = {"stars": 0, "level": 1}
 
-// Bot ko start karein
-const bot = new TelegramBot(token, { polling: true });
+    # Simulate gift box animation
+    for frame in ["🎁", "🎁✨", "🎁💎", "💎💎"]:
+        await message.reply(frame)
+        await asyncio.sleep(0.5)
 
-console.log('Bot has been started and is listening for commands...');
+    # Add stars
+    stars_received = 50
+    user_data[user_id]["stars"] += stars_received
 
-// Jab koi user '/start' command bhejega to ye code chalega
-bot.onText(/\/start/, (msg) => {
-    const chatId = msg.chat.id;
-    const userName = msg.from.first_name;
+    # Check level up
+    if user_data[user_id]["stars"] >= user_data[user_id]["level"] * 100:
+        user_data[user_id]["level"] += 1
+        await message.reply(f"⭐ Congratulations! You leveled up to Level {user_data[user_id]['level']}!")
 
-    // Welcome message ka text
-    const welcomeMessage = `
-👋 Welcome, *${userName}*!
+    await message.reply(f"✅ Gift received! {stars_received} Stars added.\n💎 Total Stars: {user_data[user_id]['stars']}")
 
-Ready to start your farming journey? 🚀
-
-Tap the button below to open your farm and begin earning coins! 🌾
-    `;
-
-    // Buttons ka layout
-    const options = {
-        parse_mode: 'Markdown',
-        reply_markup: {
-            inline_keyboard: [
-                [
-                    // Pehla button: Web App ko open karne ke liye
-                    { 
-                        text: '🚀 Start Farming', 
-                        web_app: { url: webAppUrl } 
-                    }
-                ],
-                [
-                    // Dusra button: Community channel/group ke liye
-                    { 
-                        text: '💬 Join Community', 
-                        url: communityUrl
-                    }
-                ]
-            ]
-        }
-    };
-
-    // User ko message aur buttons bhejein
-    bot.sendMessage(chatId, welcomeMessage, options);
-});
+if __name__ == "__main__":
+    executor.start_polling(dp, skip_updates=True)
